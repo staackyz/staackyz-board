@@ -1,0 +1,26 @@
+{
+    "name": "staackyz/board",
+    "description": "Server side of the Staackyz kanban: where a card lands among its neighbours",
+    "type": "library",
+    "license": "proprietary",
+    "require": {
+        "php": ">=8.4",
+        "illuminate/database": "^13.0"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "12.5.33"
+    },
+    "autoload": {
+        "psr-4": {
+            "Staackyz\\Board\\": "src-php/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Staackyz\\Board\\Tests\\": "tests-php/"
+        }
+    },
+    "config": {
+        "sort-packages": true
+    }
+}

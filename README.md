@@ -4,17 +4,25 @@ The kanban frame shared by the Staackyz apps: columns, pointer drag (touch inclu
 lands. It knows nothing about orders, tasks or any server. The app brings the cards, draws them through slots and saves
 every move itself.
 
-Shipped as source (`.vue` and `.ts`), compiled by the app's own Vite.
+Shipped as source (`.vue` and `.ts`), compiled by the app's own Vite. The server half, where a move lands among the
+neighbours read from the database, is the composer package `staackyz/board` in `src-php/`. One tag versions both.
 
 ## Install
 
 Pinned to a tag, never to a branch:
 
 ```json
-"@staackyz/board": "github:staackyz/staackyz-board#v0.1.4"
+"@staackyz/board": "github:staackyz/staackyz-board#v0.2.0"
 ```
 
-The repository is public, so `npm ci` needs no key or token on the CI runner or the deploy server.
+and in `composer.json`, with the exact version:
+
+```json
+"repositories": [{ "type": "vcs", "url": "https://github.com/staackyz/staackyz-board" }],
+"require": { "staackyz/board": "0.2.0" }
+```
+
+The repository is public, so `npm ci` and `composer install` need no key or token on the CI runner or the deploy server.
 
 In the app:
 
@@ -32,6 +40,7 @@ In the app:
 | `ColumnBoard` | The scroller, the columns and the gap. Slots `header` and `card` draw the app's own column title and card |
 | `useColumnDrag` | Lift, gap and drop. `drop` is called on release, the app decides what it means |
 | `columnMoves` | Where a card lands among the visible neighbours, plus `sideways` and `nudge` for keys and menus. `place` is the app's |
+| `StaackyzBoardColumnPositions` (PHP) | The same placement on the server, from the neighbours read under a lock, renumbering a column whose gaps ran out. `ColumnTop` is the top of a column |
 | `usePointerDrag` | The pointer drag under it all, also usable alone |
 | `resolveDropIndex`, `resolveZoneDropIndex` | The slot rule with 8px hysteresis, and the grid reading for side by side cards |
 
@@ -84,11 +93,26 @@ const drag = useColumnDrag<Task>({
 ```
 
 The server is the authority: the move route requires write permission (never a read one), checks the task belongs to
-the admin, validates `status` against the column list, checks the two neighbour ids are other tasks of that same
-column, and recomputes the position with the same midpoint rule (`midpoint` in `src/columnMoves.ts`). The client never
-sends a position.
+the admin, validates `status` against the column list, and lets `ColumnPositions` place it from the neighbours it reads
+itself. The client never sends a position.
+
+```php
+use Staackyz\Board\ColumnPositions;
+
+$positions = new ColumnPositions(fn (string $status) => Task::query()->where('status', $status));
+
+DB::transaction(function () use ($task, $positions, $status, $after, $before) {
+    // between() locks the column, so it runs in the transaction that saves the card
+    $task->position = $positions->between($status, $after, $before, $task->id);
+    $task->status = $status;
+    $task->save();
+});
+```
+
+A neighbour id that is not in that column is ignored and the card goes to its end. `topOf($status, $task->id)` is
+the place for a card that enters a column with no chosen place.
 
 ## Releasing
 
-Change, `npm test` (there is no CI here, so it runs before every tag), bump `version`, commit, tag `vX.Y.Z`, push the tag. Each app moves to the new tag in its own PR,
+Change, `npm test` and `vendor/bin/phpunit` (the CI of this repository runs both), bump `version`, commit, tag `vX.Y.Z`, push the tag. Each app moves to the new tag in its own PR,
 with its own tests.
