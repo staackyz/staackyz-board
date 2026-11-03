@@ -40,20 +40,26 @@ export interface ColumnDrag<T extends ColumnCard> {
     setScroller: (el: Element | ComponentPublicInstance | null) => void;
 }
 
-function dragState<T extends ColumnCard>() {
-    const dragging = shallowRef<T | null>(null);
-    const dragSourceKey = ref<string | null>(null);
-    const dropTarget = ref<{ status: string; index: number } | null>(null);
-    const dragHeight = ref(96);
-    const boardScroll = ref<HTMLElement | null>(null);
-
+interface DragState<T extends ColumnCard> {
+    dragging: ShallowRef<T | null>;
+    dragSourceKey: Ref<string | null>;
+    dropTarget: Ref<{ status: string; index: number } | null>;
+    dragHeight: Ref<number>;
+    boardScroll: Ref<HTMLElement | null>;
     // Outside reactivity because it is only hysteresis memory and changes nothing on screen
-    const lastSlot = { at: null as { status: string; index: number } | null };
-
-    return { dragging, dragSourceKey, dropTarget, dragHeight, boardScroll, lastSlot };
+    lastSlot: { at: { status: string; index: number } | null };
 }
 
-type DragState<T extends ColumnCard> = ReturnType<typeof dragState<T>>;
+function dragState<T extends ColumnCard>(): DragState<T> {
+    return {
+        dragging: shallowRef<T | null>(null),
+        dragSourceKey: ref<string | null>(null),
+        dropTarget: ref<{ status: string; index: number } | null>(null),
+        dragHeight: ref(96),
+        boardScroll: ref<HTMLElement | null>(null),
+        lastSlot: { at: null },
+    };
+}
 
 interface DragContext<T extends ColumnCard> {
     state: DragState<T>;

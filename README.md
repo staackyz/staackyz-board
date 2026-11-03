@@ -11,7 +11,7 @@ Shipped as source (`.vue` and `.ts`), compiled by the app's own Vite.
 Pinned to a tag, never to a branch:
 
 ```json
-"@staackyz/board": "github:staackyz/staackyz-board#v0.1.3"
+"@staackyz/board": "github:staackyz/staackyz-board#v0.1.4"
 ```
 
 The repository is public, so `npm ci` needs no key or token on the CI runner or the deploy server.
