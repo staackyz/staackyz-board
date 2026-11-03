@@ -12,14 +12,14 @@ neighbours read from the database, is the composer package `staackyz/board` in `
 Pinned to a tag, never to a branch:
 
 ```json
-"@staackyz/board": "github:staackyz/staackyz-board#v0.2.0"
+"@staackyz/board": "github:staackyz/staackyz-board#v0.2.1"
 ```
 
 and in `composer.json`, with the exact version:
 
 ```json
 "repositories": [{ "type": "vcs", "url": "https://github.com/staackyz/staackyz-board" }],
-"require": { "staackyz/board": "0.2.0" }
+"require": { "staackyz/board": "0.2.1" }
 ```
 
 The repository is public, so `npm ci` and `composer install` need no key or token on the CI runner or the deploy server.
@@ -40,7 +40,7 @@ In the app:
 | `ColumnBoard` | The scroller, the columns and the gap. Slots `header` and `card` draw the app's own column title and card |
 | `useColumnDrag` | Lift, gap and drop. `drop` is called on release, the app decides what it means |
 | `columnMoves` | Where a card lands among the visible neighbours, plus `sideways` and `nudge` for keys and menus. `place` is the app's |
-| `StaackyzBoardColumnPositions` (PHP) | The same placement on the server, from the neighbours read under a lock, renumbering a column whose gaps ran out. `ColumnTop` is the top of a column |
+| `ColumnPositions` (PHP, `Staackyz\Board`) | The same placement on the server, from the neighbours read under a lock, renumbering a column whose gaps ran out. `ColumnTop` is the top of a column |
 | `usePointerDrag` | The pointer drag under it all, also usable alone |
 | `resolveDropIndex`, `resolveZoneDropIndex` | The slot rule with 8px hysteresis, and the grid reading for side by side cards |
 
