@@ -12,14 +12,14 @@ neighbours read from the database, is the composer package `staackyz/board` in `
 Pinned to a tag, never to a branch:
 
 ```json
-"@staackyz/board": "github:staackyz/staackyz-board#v0.2.1"
+"@staackyz/board": "github:staackyz/staackyz-board#v0.2.2"
 ```
 
 and in `composer.json`, with the exact version:
 
 ```json
 "repositories": [{ "type": "vcs", "url": "https://github.com/staackyz/staackyz-board" }],
-"require": { "staackyz/board": "0.2.1" }
+"require": { "staackyz/board": "0.2.2" }
 ```
 
 The repository is public, so `npm ci` and `composer install` need no key or token on the CI runner or the deploy server.

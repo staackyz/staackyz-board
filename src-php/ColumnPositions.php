@@ -9,6 +9,8 @@ use Illuminate\Database\Eloquent\Model;
 /**
  * Order inside a column is a float between two neighbours, read from the database so a stale screen cannot place a card
  * wrong. The app hands the query of one column, the board knows no table. It is the midpoint columnMoves draws on screen.
+ *
+ * @template TModel of Model
  */
 final class ColumnPositions
 {
@@ -16,7 +18,7 @@ final class ColumnPositions
     private const MIN_GAP = 0.000001;
 
     /**
-     * @param  Closure(string): Builder<Model>  $column  the cards of that column, already narrowed to what the board shows
+     * @param  Closure(string): Builder<TModel>  $column  the cards of that column, already narrowed to what the board shows
      * @param  string  $field  the float column that holds the order
      */
     public function __construct(private Closure $column, private string $field = 'position') {}
@@ -46,7 +48,7 @@ final class ColumnPositions
         };
     }
 
-    /** @return Builder<Model> */
+    /** @return Builder<TModel> */
     private function others(string $key, ?int $selfId): Builder
     {
         $query = ($this->column)($key);

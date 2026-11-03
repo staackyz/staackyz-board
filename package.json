@@ -1,6 +1,6 @@
 {
     "name": "@staackyz/board",
-    "version": "0.2.1",
+    "version": "0.2.2",
     "description": "The kanban frame of the Staackyz family: columns, pointer drag, drop slot and card placement",
     "private": true,
     "type": "module",
