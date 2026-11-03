@@ -11,7 +11,7 @@ Shipped as source (`.vue` and `.ts`), compiled by the app's own Vite.
 Pinned to a tag, never to a branch:
 
 ```json
-"@staackyz/board": "git+ssh://git@github.com/staackyz/staackyz-board.git#v0.1.0"
+"@staackyz/board": "github:staackyz/staackyz-board#v0.1.1"
 ```
 
 The machine running `npm ci` (CI runner, deploy server) needs read access to this repository.

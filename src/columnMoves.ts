@@ -6,22 +6,22 @@ export interface PositionedCard extends ColumnCard {
 }
 
 /** Where a move lands, with the visible neighbours the app hands its server so both sides compute the same place */
-export interface ColumnMove<T extends PositionedCard> {
+export interface ColumnMove<T extends PositionedCard, K extends string = string> {
     card: T;
-    toKey: string;
+    toKey: K;
     position: number;
     after: T | null;
     before: T | null;
 }
 
-export interface ColumnMovesSource<T extends PositionedCard> {
+export interface ColumnMovesSource<T extends PositionedCard, K extends string = string> {
     /** The cards each column shows, in the order the person sees them */
     columns: () => Record<string, T[]>;
     /** The column keys from left to right */
-    keys: () => string[];
-    columnOf: (card: T) => string;
+    keys: () => K[];
+    columnOf: (card: T) => K;
     /** The app applies the move to its local copy and saves it, the board never writes anywhere by itself */
-    place: (move: ColumnMove<T>) => void;
+    place: (move: ColumnMove<T, K>) => void;
 }
 
 // Between the two neighbours, the same midpoint the server computes, so the card does not jump when the answer lands
@@ -29,9 +29,9 @@ export const midpoint = (after: PositionedCard | null, before: PositionedCard | 
     after && before ? (after.position + before.position) / 2 : after ? after.position + 1 : before ? before.position - 1 : 1;
 
 /** Every move, so a drag, a key press and a menu land the card the same way */
-export function columnMoves<T extends PositionedCard>(source: ColumnMovesSource<T>) {
+export function columnMoves<T extends PositionedCard, K extends string = string>(source: ColumnMovesSource<T, K>) {
     /** Lands the card at that index of what the person sees in the column */
-    const moveTo = (card: T, toKey: string, index: number) => {
+    const moveTo = (card: T, toKey: K, index: number) => {
         const column = (source.columns()[toKey] ?? []).filter((other) => other.id !== card.id);
         const at = Math.max(0, Math.min(index, column.length));
         const [after, before] = [column[at - 1] ?? null, column[at] ?? null];
