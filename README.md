@@ -11,10 +11,10 @@ Shipped as source (`.vue` and `.ts`), compiled by the app's own Vite.
 Pinned to a tag, never to a branch:
 
 ```json
-"@staackyz/board": "github:staackyz/staackyz-board#v0.1.2"
+"@staackyz/board": "github:staackyz/staackyz-board#v0.1.3"
 ```
 
-The machine running `npm ci` (CI runner, deploy server) needs read access to this repository.
+The repository is public, so `npm ci` needs no key or token on the CI runner or the deploy server.
 
 In the app:
 
