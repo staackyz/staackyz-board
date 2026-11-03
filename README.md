@@ -11,7 +11,7 @@ Shipped as source (`.vue` and `.ts`), compiled by the app's own Vite.
 Pinned to a tag, never to a branch:
 
 ```json
-"@staackyz/board": "github:staackyz/staackyz-board#v0.1.1"
+"@staackyz/board": "github:staackyz/staackyz-board#v0.1.2"
 ```
 
 The machine running `npm ci` (CI runner, deploy server) needs read access to this repository.
@@ -45,6 +45,7 @@ The page receives them as an Inertia prop, and the only thing the board asks is 
 ```ts
 import { ColumnBoard, columnMoves, useColumnDrag } from '@staackyz/board';
 import { router } from '@inertiajs/vue3';
+import { computed, ref, watch } from 'vue';
 
 interface Task { id: number; status: string; position: number; title: string }
 
@@ -63,10 +64,13 @@ const moves = columnMoves<Task>({
     keys: () => props.statuses,
     columnOf: (task) => task.status,
     place: ({ card, toKey, position, after, before }) => {
-        Object.assign(tasks.value.find((t) => t.id === card.id)!, { status: toKey, position });
-        router.patch(route('admin.tasks.move', card.id), { status: toKey, after: after?.id ?? null, before: before?.id ?? null }, {
+        const local = tasks.value.find((t) => t.id === card.id);
+        if (local) Object.assign(local, { status: toKey, position });
+        // A refused move brings the server's order back instead of leaving the optimistic one on screen
+        router.patch(`/admin/tasks/${card.id}/move`, { status: toKey, after: after?.id ?? null, before: before?.id ?? null }, {
             preserveScroll: true,
             only: ['tasks'],
+            onError: () => router.reload({ only: ['tasks'] }),
         });
     },
 });
@@ -79,11 +83,12 @@ const drag = useColumnDrag<Task>({
 });
 ```
 
-The server is the authority: the move route checks the task belongs to the admin, validates `status` against the
-column list and the two neighbour ids against the same column, and recomputes the position with the same midpoint rule
-(`midpoint` in `src/columnMoves.ts`). What the client sends as position is never stored.
+The server is the authority: the move route requires write permission (never a read one), checks the task belongs to
+the admin, validates `status` against the column list, checks the two neighbour ids are other tasks of that same
+column, and recomputes the position with the same midpoint rule (`midpoint` in `src/columnMoves.ts`). The client never
+sends a position.
 
 ## Releasing
 
-Change, `npm test`, bump `version`, commit, tag `vX.Y.Z`, push the tag. Each app moves to the new tag in its own PR,
+Change, `npm test` (there is no CI here, so it runs before every tag), bump `version`, commit, tag `vX.Y.Z`, push the tag. Each app moves to the new tag in its own PR,
 with its own tests.
